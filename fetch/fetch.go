@@ -91,6 +91,7 @@ func (f *PageFetcher) getStaticAssets(doc *goquery.Document) (res []*url.URL) {
 	res = append(res, imgSources...)
 
 	//Add <link> tag assets
+	//Additional check for <link> type is required
 	doc.Find("link").Each(func(_ int, linkTag *goquery.Selection) {
 		if urlAttr, ok := linkTag.Attr("href"); ok && urlAttr != "" {
 			absoluteUrl := f.normalizeUrl(urlAttr)
@@ -123,7 +124,8 @@ func (f *PageFetcher) getUrlsFromTags(tagName, attrName string, doc *goquery.Doc
 	return
 }
 
-//Returns URLs filtered by host of PageFetcher.startUrl
+//Returns URLs filtered
+//by host of PageFetcher.startUrl
 func (f *PageFetcher) excludeExternalLinks(urls []*url.URL) (filteredLinks []*url.URL) {
 
 	filteredLinks = urls[:0]
