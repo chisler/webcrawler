@@ -31,13 +31,14 @@ Usage: main -startUrl=http://example.com/ -depth=3
         Root URL of website to crawl.
 ```
 
-Proper running
+Proper running 
 ```
 $ webcrawler -startUrl=http://monzo.com -depth=2
 ...
 $ ls
 result.txt
 ```
+($GOPATH should be [set](https://golang.org/doc/code.html#GOPATH).)
 
 What's in the box
 ```
@@ -52,7 +53,6 @@ Execution took 3.431152137s
 Node: http://monzo.com/-play-store-redirect 
 Urls: [urllist] 
 Assets: [assetlist] 
-
 ```
 
 Run tests
@@ -62,8 +62,6 @@ $ go test github.com/chisler/webcrawler/crawl
 ok      github.com/chisler/webcrawler/crawl     0.003s
 $ go test github.com/chisler/webcrawler/fetch
 ok      github.com/chisler/webcrawler/fetch     0.008s
-
-
 ```
 
 ## Built With
