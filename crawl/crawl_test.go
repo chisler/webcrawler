@@ -1,10 +1,10 @@
 package crawl
 
 import (
-	"testing"
-	"net/url"
-	"github.com/stretchr/testify/assert"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"net/url"
+	"testing"
 )
 
 const testStartUrl = "http://golang.org/"
@@ -24,6 +24,24 @@ func TestWebCrawler_Crawl(t *testing.T) {
 		assert.NotNil(t, fetcher[k])
 	}
 
+}
+
+func TestWebCrawler_CrawlDepth(t *testing.T) {
+	crawler := NewWebCrawler()
+
+	crawler.Crawl(testStartUrl, 1, fetcher)
+
+	assert.Equal(t, 1, len(crawler.Fetched))
+	assert.Nil(t, crawler.errors)
+}
+
+func TestWebCrawler_FetchErrorCallback(t *testing.T) {
+	crawler := NewWebCrawler()
+
+	crawler.Crawl("No such url", 1, fetcher)
+
+	assert.Equal(t, 0, len(crawler.Fetched))
+	assert.NotNil(t, crawler.errors)
 }
 
 //------------Mock for Fetcher interface--------------
@@ -65,7 +83,6 @@ var fetcher = fakeFetcher{
 			"http://golang.org/pkg/os/",
 		},
 		nil,
-
 	},
 	"http://golang.org/pkg/fmt/": &fakeResult{
 		[]string{},
