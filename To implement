@@ -1,1 +1,22 @@
-Crawler page tests
+Common
+* Cmd interface - start, stop, new site
+* Print map in xml/json/html
+
+Fetcher
+* help.github.com == github.com
+* Retry after handshake error
+* Handle redirects
+* Retries
+
+
+Crawler
+* Change recursive way -> loop with channels with no shared memory
+* Working with slow websites
+* Respect robots.txt
+* Add a delay to each request
+* Compare to standard model
+
+Comments
+* No urls/assets on page practically means that page is static itself, however it's a part of a website still
+
+
