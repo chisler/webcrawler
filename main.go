@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/PuerkitoBio/goquery"
+	"net/url"
 )
 
 
@@ -20,7 +21,7 @@ func Fetch(urlString string)  {
 	fmt.Println(getStaticAssets(doc))
 }
 
-func getStaticAssets(doc *goquery.Document) (res []string) {
+func getStaticAssets(doc *goquery.Document) (res []*url.URL) {
 
 	//Add <script> tag assets
 	res = getAttrsFromTags(doc, "script", "src")
@@ -33,22 +34,35 @@ func getStaticAssets(doc *goquery.Document) (res []string) {
 	return
 }
 
-func getLinks(doc *goquery.Document) (res []string) {
+func getLinks(doc *goquery.Document) (res []*url.URL) {
 	res = getAttrsFromTags(doc, "a", "href")
 	return
 }
 
 //Returns attrs from document by tag and attr
-func getAttrsFromTags(doc *goquery.Document, tagName, attrName string) (res []string) {
+func getAttrsFromTags(doc *goquery.Document, tagName, attrName string) (res []*url.URL) {
 
 	doc.Find(tagName).Each(func(index int, linkTag *goquery.Selection) {
 
 		if link, ok := linkTag.Attr(attrName); ok {
-			res = append(res, link)
+			if absolute := normalizeUrl(link, doc.Url); absolute != nil {
+				res = append(res, absolute)
+			}
 		}
 	})
 	return
 }
+
+func normalizeUrl(urlString string, host *url.URL) (normalizedUrl *url.URL) {
+
+	normalizedUrl, err := host.Parse(urlString)
+	if err != nil {
+		return nil
+	}
+
+	return
+}
+
 
 func main() {
 	Fetch("https://monzo.com/")
