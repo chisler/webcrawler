@@ -76,7 +76,7 @@ func TestGetStaticAssets(t *testing.T) {
 	startUrlString := "http://example.com/"
 	fetcher, _ := NewPageFetcher(startUrlString)
 	var html = `
-		<script src="https://example.com"></script> OK
+		<script src="https://example.com"></script>		 OK
 		<script></script>					 NOT OK
 		<script src="!@#$%"></script>				 NOT OK
 

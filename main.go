@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
-	"time"
-	"fmt"
 	"./crawl"
 	"./fetch"
+	"fmt"
+	"log"
+	"time"
 )
 
 func main() {
@@ -14,12 +14,10 @@ func main() {
 	crawler := crawl.NewWebCrawler()
 	fetcher, err := fetch.NewPageFetcher(startUrl)
 
-
 	if err != nil {
 		log.Fatal("Failed to parse starting URL: %s", startUrl)
 		return
 	}
-
 
 	start := time.Now()
 
@@ -33,4 +31,3 @@ func main() {
 	end := time.Since(start)
 	fmt.Printf("Execution took %v", end)
 }
-

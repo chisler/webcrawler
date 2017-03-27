@@ -1,8 +1,7 @@
 /*
-/*
 Package fetch implements a simple library for fetching web page static assets and links by URL.
 
-The usage is:
+Usage:
 
 	fetcher, err := fetch.NewPageFetcher("https://startUrl.com/")
 

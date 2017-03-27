@@ -1,10 +1,26 @@
+/*
+Package crawl implements a simple library for crawling web site with max depth
+
+Depends on fetch package.
+
+Usage:
+
+	crawler := crawl.NewWebCrawler()
+	fetcher, err := fetch.NewPageFetcher(startUrl)
+
+	crawler.Crawl(startUrl, depth, fetcher)
+
+*/
+
 package crawl
 
+//Inspired by https://tour.golang.org/concurrency/10
+
 import (
-	"sync"
-	"net/url"
-	"log"
 	"../fetch"
+	"log"
+	"net/url"
+	"sync"
 )
 
 type Crawler interface {
@@ -21,7 +37,7 @@ type WebCrawler struct {
 }
 
 //Constructor of WebCrawler struct
-func NewWebCrawler() (*WebCrawler) {
+func NewWebCrawler() *WebCrawler {
 
 	return &WebCrawler{
 		Fetched: make(map[string][]*url.URL),
