@@ -35,17 +35,16 @@ func main() {
 		return
 	}
 
-	//Crawl pages and
+	//Crawl pages
 	start := time.Now()
-
 	crawler.Crawl(*startUrl, *depth, fetcher)
-
 	end := time.Since(start)
 
 	//Show results
 	printResultMap(crawler, start, end)
 }
 
+// Prints the sitemap to textfile or stdout in plain text
 func printResultMap(crawler *crawl.WebCrawler, start time.Time, end time.Duration) {
 	f, err := os.Create("result.txt")
 
@@ -67,6 +66,7 @@ func printResultMap(crawler *crawl.WebCrawler, start time.Time, end time.Duratio
 	}
 }
 
+// Prints usage in case of inproper cmd arguments 
 func cmd_usage() {
 	fmt.Fprintf(os.Stderr, "Usage: main -startUrl=http://example.com/ -depth=3\n")
 	flag.PrintDefaults()
