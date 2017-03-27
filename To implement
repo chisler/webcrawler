@@ -1,6 +1,5 @@
 Error handling
 Relative urls -> absolute urls
-Fetch document only once
 
 * Static assets
 Exclude not css/icon files

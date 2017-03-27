@@ -9,44 +9,47 @@ import (
 )
 
 
-
-func printStaticAssets(urlString string) {
+func Fetch(urlString string)  {
 	doc, err := goquery.NewDocument(urlString)
 	if err != nil {
 		log.Fatal(err)
 
 	}
 
-	doc.Find("script").Each(func(index int, linkTag *goquery.Selection) {
-		link, _ := linkTag.Attr("src")
-		fmt.Printf("Script #%d:'%s'\n", index, link)
-	})
-
-	doc.Find("img").Each(func(index int, linkTag *goquery.Selection) {
-		link, _ := linkTag.Attr("src")
-		fmt.Printf("Img #%d:'%s'\n", index, link)
-	})
-
-	doc.Find("link").Each(func(index int, linkTag *goquery.Selection) {
-		link, _ := linkTag.Attr("href")
-		fmt.Printf("Link #%d:'%s'\n", index, link)
-	})
+	fmt.Println(getLinks(doc))
+	fmt.Println(getStaticAssets(doc))
 }
 
-func printLinks(urlString string) {
-	doc, err := goquery.NewDocument(urlString)
-	if err != nil {
-		log.Fatal(err)
+func getStaticAssets(doc *goquery.Document) (res []string) {
 
-	}
+	//Add <script> tag assets
+	res = getAttrsFromTags(doc, "script", "src")
 
-	doc.Find("a").Each(func(index int, linkTag *goquery.Selection) {
-		link, _ := linkTag.Attr("href")
-		fmt.Printf("A #%d:'%s'\n", index, link)
+	//Add <img> tag assets
+	res = append(res, getAttrsFromTags(doc, "img", "src")...)
+
+	//Add <link> tag assets
+	res = append(res, getAttrsFromTags(doc, "link", "href")...)
+	return
+}
+
+func getLinks(doc *goquery.Document) (res []string) {
+	res = getAttrsFromTags(doc, "a", "href")
+	return
+}
+
+//Returns attrs from document by tag and attr
+func getAttrsFromTags(doc *goquery.Document, tagName, attrName string) (res []string) {
+
+	doc.Find(tagName).Each(func(index int, linkTag *goquery.Selection) {
+
+		if link, ok := linkTag.Attr(attrName); ok {
+			res = append(res, link)
+		}
 	})
+	return
 }
 
 func main() {
-	printLinks("https://monzo.com/")
-	printStaticAssets("https://monzo.com/")
+	Fetch("https://monzo.com/")
 }
