@@ -29,10 +29,10 @@ func Fetch(urlString string) {
 func getStaticAssets(doc *goquery.Document) (res []*url.URL) {
 
 	//Add <script> tag assets
-	res = getUrlsFromTags(doc, "script", "src")
+	res = getUrlsFromTags("script", "src", doc)
 
 	//Add <img> tag assets
-	res = append(res, getUrlsFromTags(doc, "img", "src")...)
+	res = append(res, getUrlsFromTags("img", "src", doc)...)
 
 	//Add <link> tag assets
 	doc.Find("link").Each(func(_ int, linkTag *goquery.Selection) {
@@ -61,17 +61,19 @@ func getInternalLinks(doc *goquery.Document) (res []*url.URL) {
 //Returns all links of the page
 func getAllLinks(doc *goquery.Document) (res []*url.URL) {
 
-	res = getUrlsFromTags(doc, "a", "href")
+	res = getUrlsFromTags("a", "href", doc)
 	return
 }
 
 //Returns attrs from document by tag and attr
-func getUrlsFromTags(doc *goquery.Document, tagName, attrName string) (res []*url.URL) {
+func getUrlsFromTags(tagName, attrName string, doc *goquery.Document) (res []*url.URL) {
 
-	doc.Find(tagName).Each(func(index int, linkTag *goquery.Selection) {
+	doc.Find(tagName).Each(func(_ int, linkTag *goquery.Selection) {
 		if urlAttr, ok := linkTag.Attr(attrName); ok && urlAttr != "" {
-			if absolute := normalizeUrl(urlAttr, doc.Url); absolute != nil {
-				res = append(res, absolute)
+
+			absoluteUrl := normalizeUrl(urlAttr, doc.Url)
+			if absoluteUrl != nil {
+				res = append(res, absoluteUrl)
 			}
 		}
 	})
