@@ -38,14 +38,13 @@ $ webcrawler -startUrl=http://monzo.com -depth=2
 $ ls
 result.txt
 ```
-($GOPATH should be [set](https://golang.org/doc/code.html#GOPATH).)
+$GOPATH should be [set](https://golang.org/doc/code.html#GOPATH).
 
 What's in the box
 ```
 $ head result.txt 
 _________MAP__________
 
-Extracted 14 pages
 Extracted 14 pages
 Execution started at 2017-03-27 15:50:22.692179718 +0300 MSK
 Execution took 3.431152137s
@@ -57,7 +56,6 @@ Assets: [assetlist]
 
 Run tests
 ```
-
 $ go test github.com/chisler/webcrawler/crawl
 ok      github.com/chisler/webcrawler/crawl     0.003s
 $ go test github.com/chisler/webcrawler/fetch
