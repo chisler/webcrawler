@@ -122,6 +122,9 @@ func (f *PageFetcher) normalizeUrl(urlString string) (normalizedUrl *url.URL) {
 		return nil
 	}
 
+	// Remove fragment
+	normalizedUrl.Fragment = ""
+
 	return
 }
 
