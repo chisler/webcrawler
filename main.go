@@ -9,12 +9,19 @@ import (
 	"net/url"
 )
 
+//Types "n" where <link type="n"> relates to a static asset
+var linkTagAllowedTypes = map[string]bool{
+	"license":       true,
+	"stylesheet":    true,
+	"icon":          true,
+	"shortcut icon": true,
+}
+
 
 func Fetch(urlString string)  {
 	doc, err := goquery.NewDocument(urlString)
 	if err != nil {
 		log.Fatal(err)
-
 	}
 
 	fmt.Println(getLinks(doc))
@@ -30,7 +37,17 @@ func getStaticAssets(doc *goquery.Document) (res []*url.URL) {
 	res = append(res, getAttrsFromTags(doc, "img", "src")...)
 
 	//Add <link> tag assets
-	res = append(res, getAttrsFromTags(doc, "link", "href")...)
+	doc.Find("link").Each(func(_ int, linkTag *goquery.Selection) {
+		if urlAttr, ok := linkTag.Attr("href"); ok && urlAttr != "" {
+			if absoluteUrl := normalizeUrl(urlAttr, doc.Url); absoluteUrl != nil {
+
+				//Check if link relates to a static asset
+				if t, ok := linkTag.Attr("rel"); ok && linkTagAllowedTypes[t] {
+					res = append(res, absoluteUrl)
+				}
+			}
+		}
+	})
 	return
 }
 
@@ -43,9 +60,8 @@ func getLinks(doc *goquery.Document) (res []*url.URL) {
 func getAttrsFromTags(doc *goquery.Document, tagName, attrName string) (res []*url.URL) {
 
 	doc.Find(tagName).Each(func(index int, linkTag *goquery.Selection) {
-
-		if link, ok := linkTag.Attr(attrName); ok {
-			if absolute := normalizeUrl(link, doc.Url); absolute != nil {
+		if urlAttr, ok := linkTag.Attr(attrName); ok && urlAttr != "" {
+			if absolute := normalizeUrl(urlAttr, doc.Url); absolute != nil {
 				res = append(res, absolute)
 			}
 		}
