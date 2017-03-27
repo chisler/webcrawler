@@ -55,8 +55,6 @@ func printResultMap(crawler *crawl.WebCrawler, start time.Time, end time.Duratio
 	}
 
 	f.WriteString("_________MAP__________\n\n")
-
-	f.WriteString(fmt.Sprintf("Extracted %v pages\n", len(crawler.Fetched)))
 	f.WriteString(fmt.Sprintf("Extracted %v pages\n", len(crawler.Fetched)))
 	f.WriteString(fmt.Sprintf("Execution started at %v\n", start))
 	f.WriteString(fmt.Sprintf("Execution took %v\n\n", end))
