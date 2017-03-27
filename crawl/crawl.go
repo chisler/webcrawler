@@ -17,7 +17,7 @@ package crawl
 //Inspired by https://tour.golang.org/concurrency/10
 
 import (
-	"../fetch"
+	"github.com/chisler/webcrawler/fetch"
 	"log"
 	"net/url"
 	"sync"

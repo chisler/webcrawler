@@ -12,8 +12,8 @@ Usage:
 package fetch
 
 import (
-	"net/url"
 	"github.com/PuerkitoBio/goquery"
+	"net/url"
 )
 
 //Types "n" where <link type="n"> relates to a static asset
