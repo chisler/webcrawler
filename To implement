@@ -1,4 +1,4 @@
-Add Interface for fetching
+Update tests for PageFetcher
 
-* Static assets
-Exclude not css/icon files
+Move fetcher to package
+

@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"log"
-
-	"github.com/PuerkitoBio/goquery"
 	"net/url"
+	"github.com/PuerkitoBio/goquery"
+	"fmt"
 )
 
 //Types "n" where <link type="n"> relates to a static asset
@@ -16,28 +14,68 @@ var linkTagAllowedTypes = map[string]bool{
 	"shortcut icon": true,
 }
 
-func Fetch(urlString string) {
-	doc, err := goquery.NewDocument(urlString)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(getInternalLinks(doc))
-	fmt.Println(getStaticAssets(doc))
+type Fetcher interface {
+	Fetch(targetUrl string) (assets []*url.URL, urls []*url.URL, err error)
 }
 
-func getStaticAssets(doc *goquery.Document) (res []*url.URL) {
+type PageFetcher struct {
+	startUrl *url.URL
+}
+
+func NewPageFetcher(startUrlString string) (*PageFetcher, error) {
+	startUrl, err := url.Parse(startUrlString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &PageFetcher{startUrl: startUrl}, nil
+
+}
+
+func (f *PageFetcher) Fetch(targetUrl string) (assets []*url.URL, urls []*url.URL, err error) {
+
+	doc, err := goquery.NewDocument(targetUrl)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	urls = f.getInternalLinks(doc)
+
+	assets = f.getStaticAssets(doc)
+
+	return
+}
+
+func (f *PageFetcher) getInternalLinks(doc *goquery.Document) (res []*url.URL) {
+
+	allLinks := f.getAllLinks(doc)
+	res = f.excludeExternalLinks(allLinks)
+
+	return
+}
+
+func (f *PageFetcher) getAllLinks(doc *goquery.Document) (res []*url.URL) {
+
+	res = f.getUrlsFromTags("a", "href", doc)
+	return
+}
+
+func (f *PageFetcher) getStaticAssets(doc *goquery.Document) (res []*url.URL) {
 
 	//Add <script> tag assets
-	res = getUrlsFromTags("script", "src", doc)
+	scriptSources := f.getUrlsFromTags("script", "src", doc)
+	res = append(res, scriptSources...)
 
 	//Add <img> tag assets
-	res = append(res, getUrlsFromTags("img", "src", doc)...)
+	imgSources := f.getUrlsFromTags("img", "src", doc)
+	res = append(res, imgSources...)
 
 	//Add <link> tag assets
 	doc.Find("link").Each(func(_ int, linkTag *goquery.Selection) {
 		if urlAttr, ok := linkTag.Attr("href"); ok && urlAttr != "" {
-			if absoluteUrl := normalizeUrl(urlAttr, doc.Url); absoluteUrl != nil {
+			absoluteUrl := f.normalizeUrl(urlAttr)
+			if absoluteUrl != nil {
 
 				//Check if link relates to a static asset
 				if t, ok := linkTag.Attr("rel"); ok && linkTagAllowedTypes[t] {
@@ -46,32 +84,16 @@ func getStaticAssets(doc *goquery.Document) (res []*url.URL) {
 			}
 		}
 	})
-	return
-}
-
-//Returns all links limited to one domain of startUrl
-func getInternalLinks(doc *goquery.Document) (res []*url.URL) {
-
-	allLinks := getAllLinks(doc)
-	res = excludeExternalLinks(allLinks, doc.Url)
 
 	return
 }
 
-//Returns all links of the page
-func getAllLinks(doc *goquery.Document) (res []*url.URL) {
-
-	res = getUrlsFromTags("a", "href", doc)
-	return
-}
-
-//Returns attrs from document by tag and attr
-func getUrlsFromTags(tagName, attrName string, doc *goquery.Document) (res []*url.URL) {
+func (f *PageFetcher) getUrlsFromTags(tagName, attrName string, doc *goquery.Document) (res []*url.URL) {
 
 	doc.Find(tagName).Each(func(_ int, linkTag *goquery.Selection) {
 		if urlAttr, ok := linkTag.Attr(attrName); ok && urlAttr != "" {
 
-			absoluteUrl := normalizeUrl(urlAttr, doc.Url)
+			absoluteUrl := f.normalizeUrl(urlAttr)
 			if absoluteUrl != nil {
 				res = append(res, absoluteUrl)
 			}
@@ -80,21 +102,22 @@ func getUrlsFromTags(tagName, attrName string, doc *goquery.Document) (res []*ur
 	return
 }
 
-func excludeExternalLinks(urls []*url.URL, host *url.URL) (filteredLinks []*url.URL) {
+func (f *PageFetcher) excludeExternalLinks(urls []*url.URL) (filteredLinks []*url.URL) {
 
 	filteredLinks = urls[:0]
-	for _, current_url := range urls {
-		if host.Host == current_url.Host {
-			filteredLinks = append(filteredLinks, current_url)
+	for _, currentUrl := range urls {
+		if f.startUrl.Host == currentUrl.Host {
+			filteredLinks = append(filteredLinks, currentUrl)
 		}
 	}
 
 	return
 }
 
-func normalizeUrl(urlString string, host *url.URL) (normalizedUrl *url.URL) {
+func (f *PageFetcher) normalizeUrl(urlString string) (normalizedUrl *url.URL) {
 
-	normalizedUrl, err := host.Parse(urlString)
+	// Parse and resolve to an absolute url
+	normalizedUrl, err := f.startUrl.Parse(urlString)
 	if err != nil {
 		return nil
 	}
@@ -103,5 +126,6 @@ func normalizeUrl(urlString string, host *url.URL) (normalizedUrl *url.URL) {
 }
 
 func main() {
-	Fetch("https://monzo.com/")
+	fetcher, _ := NewPageFetcher("https://monzo.com/")
+	fmt.Print(fetcher.Fetch("https://monzo.com/"))
 }
