@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	startUrl := "http://monzo.com/"
+	startUrl := "http://jeniasofronov.ru/"
 
 	crawler := crawl.NewWebCrawler()
 	fetcher, err := fetch.NewPageFetcher(startUrl)
@@ -21,10 +21,12 @@ func main() {
 
 	start := time.Now()
 
-	crawler.Crawl(startUrl, 2, fetcher)
+	crawler.Crawl(startUrl, 3, fetcher)
+
+
 	fmt.Println("_________MAP__________")
 	for k, v := range crawler.Fetched {
-		fmt.Printf("Node: %v \nAssets: %v \n\n", k, v)
+		fmt.Printf("Node: %v \nUrls: %v \nAssets: %v \n\n", k, v.Urls, v.Assets)
 	}
 	fmt.Printf("Extracted %v pages\n", len(crawler.Fetched))
 

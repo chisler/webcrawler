@@ -31,22 +31,35 @@ type Crawler interface {
 
 //WebCrawler instance - abuser of Crawler interface
 type WebCrawler struct {
-	Fetched map[string][]*url.URL
-	sync.RWMutex
+	Fetched map[string]*Page
 	errors  []error
+
+	sync.RWMutex
 }
 
 //Constructor of WebCrawler struct
 func NewWebCrawler() *WebCrawler {
 
 	return &WebCrawler{
-		Fetched: make(map[string][]*url.URL),
+		Fetched: make(map[string]*Page),
 	}
 
 }
 
+type Page struct {
+	Assets []*url.URL
+	Urls   []*url.URL
+}
+
+func NewPage(assets []*url.URL, urls []*url.URL) *Page {
+	return &Page{
+		Assets: assets,
+		Urls:   urls,
+	}
+}
+
 //Recursively crawls pages
-// extracts static assets and URLs
+// extracts static Assets and URLs
 func (crawler *WebCrawler) Crawl(currentUrl string, depth int, fetcher fetch.Fetcher) {
 
 	//Do not Crawl page if depth was exceeded
@@ -62,7 +75,7 @@ func (crawler *WebCrawler) Crawl(currentUrl string, depth int, fetcher fetch.Fet
 	}
 	crawler.RUnlock()
 
-	//Fetch page's static assets and URLs
+	//Fetch page's static Assets and URLs
 	assets, urls, err := fetcher.Fetch(currentUrl)
 	if err != nil {
 		log.Println(err)
@@ -74,7 +87,7 @@ func (crawler *WebCrawler) Crawl(currentUrl string, depth int, fetcher fetch.Fet
 
 	//Add fetched resources to a storage synchronously
 	crawler.Lock()
-	crawler.Fetched[currentUrl] = assets
+	crawler.Fetched[currentUrl] = NewPage(assets, urls)
 	crawler.Unlock()
 
 	//Recursively and asynchronously Crawl URLs just fetched

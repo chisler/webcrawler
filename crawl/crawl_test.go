@@ -56,7 +56,7 @@ type fakeResult struct {
 	err    error
 }
 
-// Imitates the Fetcher interface Fetch (assets, urls, err)
+// Imitates the Fetcher interface Fetch (Assets, Urls, err)
 func (f fakeFetcher) Fetch(targetUrl string) (assets []*url.URL, urls []*url.URL, err error) {
 	if res, ok := f[targetUrl]; ok {
 		return parseUrls(res.assets), parseUrls(res.urls), nil
