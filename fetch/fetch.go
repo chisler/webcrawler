@@ -1,3 +1,15 @@
+/*
+/*
+Package fetch implements a simple library for fetching web page static assets and links by URL.
+
+The usage is:
+
+	fetcher, err := fetch.NewPageFetcher("https://startUrl.com/")
+
+	assets, urls, err := fetcher.Fetch("https://fetchUrl.com/")
+
+*/
+
 package fetch
 
 import (
@@ -14,13 +26,17 @@ var linkTagAllowedTypes = map[string]bool{
 }
 
 type Fetcher interface {
+	// Fetch returns two slices: static assets and
+	// URLs found on the page by its URL and
 	Fetch(targetUrl string) (assets []*url.URL, urls []*url.URL, err error)
 }
 
+//PageFetcher instance - abuser of Fetcher interface
 type PageFetcher struct {
 	startUrl *url.URL
 }
 
+//Constructor of PageFetcher struct
 func NewPageFetcher(startUrlString string) (*PageFetcher, error) {
 	startUrl, err := url.Parse(startUrlString)
 
@@ -32,6 +48,7 @@ func NewPageFetcher(startUrlString string) (*PageFetcher, error) {
 
 }
 
+// Returns static assets and URLs from retrieved webpage
 func (f *PageFetcher) Fetch(targetUrl string) (assets []*url.URL, urls []*url.URL, err error) {
 
 	doc, err := goquery.NewDocument(targetUrl)
@@ -39,6 +56,7 @@ func (f *PageFetcher) Fetch(targetUrl string) (assets []*url.URL, urls []*url.UR
 		return nil, nil, err
 	}
 
+	//Both urls and assets are allowed to be empty
 	urls = f.getInternalLinks(doc)
 
 	assets = f.getStaticAssets(doc)
@@ -46,6 +64,7 @@ func (f *PageFetcher) Fetch(targetUrl string) (assets []*url.URL, urls []*url.UR
 	return
 }
 
+//Returns all links limited to one domain of startUrl
 func (f *PageFetcher) getInternalLinks(doc *goquery.Document) (res []*url.URL) {
 
 	allLinks := f.getAllLinks(doc)
@@ -54,12 +73,14 @@ func (f *PageFetcher) getInternalLinks(doc *goquery.Document) (res []*url.URL) {
 	return
 }
 
+//Returns all links of the page
 func (f *PageFetcher) getAllLinks(doc *goquery.Document) (res []*url.URL) {
 
 	res = f.getUrlsFromTags("a", "href", doc)
 	return
 }
 
+//Returns all static assets of the page
 func (f *PageFetcher) getStaticAssets(doc *goquery.Document) (res []*url.URL) {
 
 	//Add <script> tag assets
@@ -87,6 +108,8 @@ func (f *PageFetcher) getStaticAssets(doc *goquery.Document) (res []*url.URL) {
 	return
 }
 
+//Returns URLs from document
+//by tag and attr of the url
 func (f *PageFetcher) getUrlsFromTags(tagName, attrName string, doc *goquery.Document) (res []*url.URL) {
 
 	doc.Find(tagName).Each(func(_ int, linkTag *goquery.Selection) {
@@ -101,6 +124,7 @@ func (f *PageFetcher) getUrlsFromTags(tagName, attrName string, doc *goquery.Doc
 	return
 }
 
+//Returns URLs filtered by host of PageFetcher.startUrl
 func (f *PageFetcher) excludeExternalLinks(urls []*url.URL) (filteredLinks []*url.URL) {
 
 	filteredLinks = urls[:0]
@@ -113,6 +137,7 @@ func (f *PageFetcher) excludeExternalLinks(urls []*url.URL) (filteredLinks []*ur
 	return
 }
 
+//Returns absolute URL without fragment
 func (f *PageFetcher) normalizeUrl(urlString string) (normalizedUrl *url.URL) {
 
 	// Parse and resolve to an absolute url
