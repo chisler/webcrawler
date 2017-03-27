@@ -26,6 +26,16 @@ func TestWebCrawler_Crawl(t *testing.T) {
 
 }
 
+func TestWebCrawler_Page(t *testing.T) {
+	crawler := NewWebCrawler()
+
+	crawler.Crawl(testStartUrl, 1, fetcher)
+	expected_urls := parseUrls(fetcher[testStartUrl].urls)
+
+	assert.Equal(t, expected_urls, crawler.Fetched[testStartUrl].Urls)
+	assert.Nil(t, crawler.Fetched[testStartUrl].Assets)
+}
+
 func TestWebCrawler_CrawlDepth(t *testing.T) {
 	crawler := NewWebCrawler()
 
